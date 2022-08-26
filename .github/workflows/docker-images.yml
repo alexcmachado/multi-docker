@@ -1,0 +1,34 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Before tests
+      run: docker build . --file Dockerfile.dev --tag alexcmachado/react-test
+    
+    - name: Run test suite
+      run: docker run -e CI=true alexcmachado/react-test npm test
+      
+    - name: Finalization
+      run: |
+        docker build -t alexcmachado/multi-client ./client
+        docker build -t alexcmachado/multi-nginx ./nginx
+        docker build -t alexcmachado/multi-server ./server
+        docker build -t alexcmachado/multi-worker ./worker
+
+        echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_ID }} --password-stdin
+
+        docker push alexcmachado/multi-client
+        docker push alexcmachado/multi-nginx
+        docker push alexcmachado/multi-server
+        docker push alexcmachado/multi-worker
+      
