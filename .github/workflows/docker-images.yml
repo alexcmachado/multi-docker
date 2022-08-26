@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Before tests
-      run: docker build . --file Dockerfile.dev --tag alexcmachado/react-test
+      run: docker build ./client --file ./client/Dockerfile.dev --tag alexcmachado/react-test
     
     - name: Run test suite
       run: docker run -e CI=true alexcmachado/react-test npm test
